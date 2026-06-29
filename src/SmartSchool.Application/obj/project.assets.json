@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {}
+    "net8.0": {
+      "SmartSchool.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/SmartSchool.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SmartSchool.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "SmartSchool.Domain/1.0.0": {
+      "type": "project",
+      "path": "../SmartSchool.Domain/SmartSchool.Domain.csproj",
+      "msbuildProject": "../SmartSchool.Domain/SmartSchool.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0": []
+    "net8.0": [
+      "SmartSchool.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\User\\.nuget\\packages\\": {}
@@ -31,7 +50,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\OneDrive\\Berijalan Technocenter (91730)\\Fr\\.net\\SmartCard\\src\\SmartSchool.Domain\\SmartSchool.Domain.csproj": {
+              "projectPath": "D:\\OneDrive\\Berijalan Technocenter (91730)\\Fr\\.net\\SmartCard\\src\\SmartSchool.Domain\\SmartSchool.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
