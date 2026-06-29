@@ -11,9 +11,12 @@ public class SmartSchoolDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SmartSchoolDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
+
 }

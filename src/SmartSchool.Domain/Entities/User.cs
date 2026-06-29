@@ -1,4 +1,5 @@
 using SmartSchool.Domain.Common;
+
 namespace SmartSchool.Domain.Entities;
 
 public class User : BaseEntity
@@ -9,7 +10,9 @@ public class User : BaseEntity
 
     public string FullName { get; set; } = string.Empty;
 
-    public string Role { get; set; } = "ADMIN";
+    public Guid RoleId { get; set; }
+
+    public Role Role { get; set; } = null!;
 
     public bool IsActive { get; set; } = true;
 }
