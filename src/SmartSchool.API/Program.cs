@@ -1,6 +1,11 @@
 using SmartSchool.Infrastructure.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Infrastructure.Context;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<SmartSchoolDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
