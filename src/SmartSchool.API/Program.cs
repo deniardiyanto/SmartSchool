@@ -53,6 +53,8 @@
 //     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 // }
 using SmartSchool.Infrastructure.DependencyInjection;
+using SmartSchool.Infrastructure.Context;
+using SmartSchool.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +67,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SmartSchoolDbContext>();
+
+    await DataSeeder.SeedAsync(db);
+}
 
 if (app.Environment.IsDevelopment())
 {

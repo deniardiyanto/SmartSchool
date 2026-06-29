@@ -136,3 +136,4 @@ D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.API
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.API\obj\Debug\net8.0\SmartSchool.API.pdb
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.API\obj\Debug\net8.0\SmartSchool.API.genruntimeconfig.cache
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.API\obj\Debug\net8.0\ref\SmartSchool.API.dll
+D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.API\bin\Debug\net8.0\BCrypt-Net-Next.dll
