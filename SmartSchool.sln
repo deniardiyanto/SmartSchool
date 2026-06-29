@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.API", "src\SmartSchool.API\SmartSchool.API.csproj", "{73936C77-AB52-4F9C-9C67-528078378D3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.Domain", "src\SmartSchool.Domain\SmartSchool.Domain.csproj", "{A1823AD1-33E3-4C95-85D2-F636F94F6282}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.Application", "src\SmartSchool.Application\SmartSchool.Application.csproj", "{9C3A016E-7436-42FB-98CB-152952333096}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.Infrastructure", "src\SmartSchool.Infrastructure\SmartSchool.Infrastructure.csproj", "{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.Shared", "src\SmartSchool.Shared\SmartSchool.Shared.csproj", "{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSchool.Desktop", "src\SmartSchool.Desktop\SmartSchool.Desktop.csproj", "{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73936C77-AB52-4F9C-9C67-528078378D3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73936C77-AB52-4F9C-9C67-528078378D3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73936C77-AB52-4F9C-9C67-528078378D3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73936C77-AB52-4F9C-9C67-528078378D3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1823AD1-33E3-4C95-85D2-F636F94F6282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1823AD1-33E3-4C95-85D2-F636F94F6282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1823AD1-33E3-4C95-85D2-F636F94F6282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1823AD1-33E3-4C95-85D2-F636F94F6282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C3A016E-7436-42FB-98CB-152952333096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3A016E-7436-42FB-98CB-152952333096}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3A016E-7436-42FB-98CB-152952333096}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C3A016E-7436-42FB-98CB-152952333096}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{73936C77-AB52-4F9C-9C67-528078378D3A} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+		{A1823AD1-33E3-4C95-85D2-F636F94F6282} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+		{9C3A016E-7436-42FB-98CB-152952333096} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+		{A74DC98C-F9AD-4DFB-A00F-C1850670B1B3} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+		{C3C6A7CF-C62C-4499-8D5C-23F74CCA5C38} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+		{79CF45A8-0B6F-4FCD-AE63-2FDF625211E0} = {F2C0A15B-34D3-4198-A6E9-9CCE7C9088DF}
+	EndGlobalSection
+EndGlobal
