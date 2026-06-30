@@ -1,8 +1,20 @@
+// using SmartSchool.Domain.Common;
+
+// namespace SmartSchool.Domain.Entities;
+
+// public class Role : BaseEntity
+// {
+//     public string Name { get; set; } = string.Empty;
+
+//     public string Description { get; set; } = string.Empty;
+
+//     public ICollection<User> Users { get; set; } = new List<User>();
+// }
 using SmartSchool.Domain.Common;
 
 namespace SmartSchool.Domain.Entities;
 
-public class Role : BaseEntity
+public class Role : BaseSoftDeleteEntity
 {
     public string Name { get; set; } = string.Empty;
 
