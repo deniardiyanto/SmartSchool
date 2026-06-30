@@ -3,7 +3,7 @@ using SmartSchool.Domain.Enums;
 
 namespace SmartSchool.Domain.Entities;
 
-public class Guardian : BaseSoftDeleteEntity
+public class Guardian : BaseAuditableEntity
 {
     public string FullName { get; set; } = string.Empty;
 
@@ -11,8 +11,13 @@ public class Guardian : BaseSoftDeleteEntity
 
     public string? Email { get; set; }
 
-   public GuardianRelationship Relationship { get; set; }
+    public string? Address { get; set; }
 
-    public ICollection<Student> Students { get; set; }
-        = new List<Student>();
+    public GuardianRelationship Relationship { get; set; }
+
+    public string? Occupation { get; set; }
+
+    public bool IsActive { get; set; } = true;
+
+    public ICollection<Student> Students { get; set; } = new List<Student>();
 }

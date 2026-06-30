@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Domain.Entities;
 
-namespace SmartSchool.Infrastructure.Configurations;
+namespace SmartSchool.Infrastructure.Persistence.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -20,11 +20,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
 
         builder.Property(x => x.PasswordHash)
-            .HasMaxLength(500)
             .IsRequired();
 
         builder.Property(x => x.FullName)
-            .HasMaxLength(150)
+            .HasMaxLength(100)
             .IsRequired();
 
         builder.Property(x => x.Email)
@@ -36,8 +35,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);
 
+        builder.Property(x => x.IsDeleted)
+            .HasDefaultValue(false);
+
         builder.HasOne(x => x.Role)
-            .WithMany(x => x.Users)
+            .WithMany(r => r.Users)
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
     }

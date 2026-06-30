@@ -4,6 +4,7 @@ using SmartSchool.Infrastructure.Context;
 using SmartSchool.Infrastructure.Seed;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application.Common.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,12 +28,24 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+// using (var scope = app.Services.CreateScope())
+// {
+//     var context = scope.ServiceProvider.GetRequiredService<SmartSchoolDbContext>();
+//     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+//     await context.Database.EnsureCreatedAsync();
+
+//     await DataSeeder.SeedAsync(context, passwordHasher);
+// }
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<SmartSchoolDbContext>();
-    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    var services = scope.ServiceProvider;
 
-    await context.Database.EnsureCreatedAsync();
+    var context = services.GetRequiredService<SmartSchoolDbContext>();
+
+    await context.Database.MigrateAsync();
+
+    var passwordHasher = services.GetRequiredService<IPasswordHasher>();
 
     await DataSeeder.SeedAsync(context, passwordHasher);
 }

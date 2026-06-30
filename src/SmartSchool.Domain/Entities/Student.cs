@@ -3,7 +3,7 @@ using SmartSchool.Domain.Enums;
 
 namespace SmartSchool.Domain.Entities;
 
-public class Student : BaseSoftDeleteEntity
+public class Student : BaseAuditableEntity
 {
     public string NIS { get; set; } = string.Empty;
 
@@ -11,28 +11,34 @@ public class Student : BaseSoftDeleteEntity
 
     public string FullName { get; set; } = string.Empty;
 
+    public Gender Gender { get; set; }
+
+    public string? BirthPlace { get; set; }
+
     public DateTime BirthDate { get; set; }
 
-   public Gender Gender { get; set; }
     public string? Address { get; set; }
 
-    public bool IsActive { get; set; } = true;
-
-    public Guid GuardianId  { get; set; }
-
-    public Guardian Guardian { get; set; } = null!;
+    public string? PhotoUrl { get; set; }
 
     public Guid ClassRoomId { get; set; }
 
+    public Guid GuardianId { get; set; }
+
+    public StudentStatus Status { get; set; } = StudentStatus.Active;
+
+    public DateTime EnrollmentDate { get; set; } = DateTime.UtcNow;
+
+    public bool IsActive { get; set; } = true;
+
+    // Navigation
     public ClassRoom ClassRoom { get; set; } = null!;
-    public string? PhotoPath { get; set; }
 
-    public ICollection<Attendance> Attendances { get; set; }
-        = new List<Attendance>();
+    public Guardian Guardian { get; set; } = null!;
 
-    public ICollection<AttendancePoint> AttendancePoints { get; set; }
-        = new List<AttendancePoint>();
+    public BarcodeCard? BarcodeCard { get; set; }
 
-    public ICollection<BarcodeCard> BarcodeCards { get; set; }
-        = new List<BarcodeCard>();
+    public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+
+    public ICollection<AttendancePoint> AttendancePoints { get; set; } = new List<AttendancePoint>();
 }

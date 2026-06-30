@@ -2,15 +2,24 @@ using SmartSchool.Domain.Common;
 
 namespace SmartSchool.Domain.Entities;
 
-public class BarcodeCard : BaseSoftDeleteEntity
+public class BarcodeCard : BaseAuditableEntity
 {
-    public string Barcode { get; set; } = string.Empty;
+    public Guid StudentId { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public string CardNumber { get; set; } = string.Empty;
+
+    public string BarcodeValue { get; set; } = string.Empty;
+
+    public DateTime IssuedDate { get; set; } = DateTime.UtcNow;
 
     public DateTime? ExpiredDate { get; set; }
 
-    public Guid StudentId { get; set; }
+    public bool IsActive { get; set; } = true;
 
+    public int PrintedCount { get; set; }
+
+    // Navigation
     public Student Student { get; set; } = null!;
+
+    public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 }

@@ -9,4 +9,5 @@ public abstract class BaseAuditableEntity : BaseEntity
     public DateTime? UpdatedAt { get; set; }
 
     public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

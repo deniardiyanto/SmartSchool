@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Domain.Entities;
 
-namespace SmartSchool.Infrastructure.Configurations;
+namespace SmartSchool.Infrastructure.Persistence.Configurations;
 
 public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
@@ -13,18 +13,19 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
-            .HasMaxLength(100)
+            .HasMaxLength(50)
             .IsRequired();
-
-        builder.Property(x => x.Description)
-            .HasMaxLength(500);
 
         builder.HasIndex(x => x.Name)
             .IsUnique();
 
-        builder.HasMany(x => x.Users)
-            .WithOne(x => x.Role)
-            .HasForeignKey(x => x.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(x => x.Description)
+            .HasMaxLength(255);
+
+        builder.Property(x => x.IsActive)
+            .HasDefaultValue(true);
+
+        builder.Property(x => x.IsDeleted)
+            .HasDefaultValue(false);
     }
 }

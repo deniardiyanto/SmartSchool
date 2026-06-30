@@ -7,17 +7,34 @@ public class Attendance : BaseAuditableEntity
 {
     public Guid StudentId { get; set; }
 
-    public Student Student { get; set; } = null!;
+    public Guid BarcodeCardId { get; set; }
+
+    public Guid AttendanceRuleId { get; set; }
+
+    public DateTime AttendanceDate { get; set; }
 
     public DateTime ScanTime { get; set; }
 
+    public AttendanceType AttendanceType { get; set; }
+
     public AttendanceStatus Status { get; set; }
 
-    public int Point { get; set; }
+    public int LateMinutes { get; set; }
 
-    public Guid ScanBy { get; set; }
+    public int PointDeduction { get; set; }
 
-    public User Scanner { get; set; } = null!;
+    public Guid ScannedBy { get; set; }
 
     public string? Notes { get; set; }
+
+    // Navigation
+    public Student Student { get; set; } = null!;
+
+    public BarcodeCard BarcodeCard { get; set; } = null!;
+
+    public AttendanceRule AttendanceRule { get; set; } = null!;
+
+    public ICollection<AttendancePoint> AttendancePoints { get; set; } = new List<AttendancePoint>();
+
+    public ICollection<WhatsAppLog> WhatsAppLogs { get; set; } = new List<WhatsAppLog>();
 }
