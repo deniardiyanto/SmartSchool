@@ -1,45 +1,41 @@
-using BCrypt.Net;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Domain.Entities;
 using SmartSchool.Infrastructure.Context;
+using SmartSchool.Application.Common.Interfaces;
 
 namespace SmartSchool.Infrastructure.Seed;
 
 public static class DataSeeder
 {
-    public static async Task SeedAsync(SmartSchoolDbContext context)
+    public static async Task SeedAsync(
+        SmartSchoolDbContext context,
+        IPasswordHasher passwordHasher)
     {
-        await context.Database.MigrateAsync();
-
-        // Seed Role
-        if (!await context.Roles.AnyAsync())
+        if (!context.Roles.Any())
         {
-            var adminRole = new Role
+            context.Roles.Add(new Role
             {
-                Name = "ADMIN",
-                Description = "Administrator"
-            };
+                Name = "Admin",
+                Description = "System Administrator"
+            });
 
-            var petugasRole = new Role
+            context.Roles.Add(new Role
             {
-                Name = "PETUGAS",
+                Name = "Officer",
                 Description = "Petugas Absensi"
-            };
+            });
 
-            context.Roles.AddRange(adminRole, petugasRole);
             await context.SaveChangesAsync();
         }
 
-        // Seed Admin
-        if (!await context.Users.AnyAsync())
+        if (!context.Users.Any())
         {
-            var adminRole = await context.Roles.FirstAsync(x => x.Name == "ADMIN");
+            var adminRole = context.Roles.First(x => x.Name == "Admin");
 
             context.Users.Add(new User
             {
                 Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                FullName = "System Administrator",
+                PasswordHash = passwordHasher.Hash("Admin123!"),
+                FullName = "Administrator",
                 RoleId = adminRole.Id,
                 IsActive = true
             });

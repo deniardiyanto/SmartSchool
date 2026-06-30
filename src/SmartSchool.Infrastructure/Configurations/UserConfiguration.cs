@@ -20,11 +20,18 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
 
         builder.Property(x => x.PasswordHash)
+            .HasMaxLength(500)
             .IsRequired();
 
         builder.Property(x => x.FullName)
-            .HasMaxLength(100)
+            .HasMaxLength(150)
             .IsRequired();
+
+        builder.Property(x => x.Email)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.PhoneNumber)
+            .HasMaxLength(20);
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);

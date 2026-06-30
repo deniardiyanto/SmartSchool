@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Domain.Entities;
 
@@ -5,18 +6,35 @@ namespace SmartSchool.Infrastructure.Context;
 
 public class SmartSchoolDbContext : DbContext
 {
-    public SmartSchoolDbContext(DbContextOptions<SmartSchoolDbContext> options)
+    public SmartSchoolDbContext(
+        DbContextOptions<SmartSchoolDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
+
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<Student> Students => Set<Student>();
+
+    public DbSet<Guardian> Guardians => Set<Guardian>();
+
+    public DbSet<ClassRoom> ClassRooms => Set<ClassRoom>();
+
+    public DbSet<Attendance> Attendances => Set<Attendance>();
+
+    public DbSet<AttendancePoint> AttendancePoints => Set<AttendancePoint>();
+
+    public DbSet<BarcodeCard> BarcodeCards => Set<BarcodeCard>();
+
+    public DbSet<WhatsAppLog> WhatsAppLogs => Set<WhatsAppLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SmartSchoolDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            Assembly.GetExecutingAssembly());
+
         base.OnModelCreating(modelBuilder);
     }
-
 }

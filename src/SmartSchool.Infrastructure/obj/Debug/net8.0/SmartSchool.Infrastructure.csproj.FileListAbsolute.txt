@@ -4,8 +4,8 @@ D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Inf
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Infrastructure.pdb
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Application.dll
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Domain.dll
-D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Domain.pdb
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Application.pdb
+D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\bin\Debug\net8.0\SmartSchool.Domain.pdb
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\obj\Debug\net8.0\SmartSchool.Infrastructure.csproj.AssemblyReference.cache
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\obj\Debug\net8.0\SmartSchool.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
 D:\OneDrive\Berijalan Technocenter (91730)\Fr\.net\SmartCard\src\SmartSchool.Infrastructure\obj\Debug\net8.0\SmartSchool.Infrastructure.AssemblyInfoInputs.cache

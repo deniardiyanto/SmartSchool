@@ -13,10 +13,18 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
-               .HasMaxLength(50)
-               .IsRequired();
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(x => x.Description)
+            .HasMaxLength(500);
 
         builder.HasIndex(x => x.Name)
-               .IsUnique();
+            .IsUnique();
+
+        builder.HasMany(x => x.Users)
+            .WithOne(x => x.Role)
+            .HasForeignKey(x => x.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
