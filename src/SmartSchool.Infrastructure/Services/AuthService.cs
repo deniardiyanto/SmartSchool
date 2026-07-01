@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Common.Interfaces;
 using SmartSchool.Application.Common.Models;
 using SmartSchool.Application.Features.Authentication.Login;
-using SmartSchool.Infrastructure.Context;
+using SmartSchool.Infrastructure.Persistence.Context;
 
 namespace SmartSchool.Infrastructure.Services;
 

@@ -1,5 +1,5 @@
 using SmartSchool.Domain.Entities;
-using SmartSchool.Infrastructure.Context;
+using SmartSchool.Infrastructure.Persistence.Context;
 using SmartSchool.Application.Common.Interfaces;
 
 namespace SmartSchool.Infrastructure.Seed;

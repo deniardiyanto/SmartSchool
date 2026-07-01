@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SmartSchool.Infrastructure.Context;
+using SmartSchool.Infrastructure.Persistence.Context;
 
 using SmartSchool.Application.Common.Interfaces;
 using SmartSchool.Application.Common.Settings;
