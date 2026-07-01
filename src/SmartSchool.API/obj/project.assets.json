@@ -1179,7 +1179,10 @@
         },
         "runtime": {
           "bin/placeholder/SmartSchool.Infrastructure.dll": {}
-        }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },
