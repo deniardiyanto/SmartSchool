@@ -12,23 +12,18 @@ public class SmartSchoolDbContext : DbContext
     {
     }
 
-    public DbSet<Role> Roles => Set<Role>();
-
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<Student> Students => Set<Student>();
-
-    public DbSet<Guardian> Guardians => Set<Guardian>();
-
-    public DbSet<ClassRoom> ClassRooms => Set<ClassRoom>();
-
-    public DbSet<Attendance> Attendances => Set<Attendance>();
-
-    public DbSet<AttendancePoint> AttendancePoints => Set<AttendancePoint>();
-
-    public DbSet<BarcodeCard> BarcodeCards => Set<BarcodeCard>();
-
-    public DbSet<WhatsAppLog> WhatsAppLogs => Set<WhatsAppLog>();
+   public DbSet<Role> Roles => Set<Role>();
+public DbSet<User> Users => Set<User>();
+public DbSet<ClassRoom> ClassRooms => Set<ClassRoom>();
+public DbSet<Guardian> Guardians => Set<Guardian>();
+public DbSet<Student> Students => Set<Student>();
+public DbSet<BarcodeCard> BarcodeCards => Set<BarcodeCard>();
+public DbSet<Attendance> Attendances => Set<Attendance>();
+public DbSet<AttendancePoint> AttendancePoints => Set<AttendancePoint>();
+public DbSet<WhatsAppLog> WhatsAppLogs => Set<WhatsAppLog>();
+public DbSet<SchoolSetting> SchoolSettings => Set<SchoolSetting>();
+public DbSet<Holiday> Holidays => Set<Holiday>();
+public DbSet<AttendanceRule> AttendanceRules => Set<AttendanceRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
