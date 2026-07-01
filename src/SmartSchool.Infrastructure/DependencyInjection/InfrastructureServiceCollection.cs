@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Infrastructure.Persistence.Context;
+using SmartSchool.Application.Features.ClassRooms.Interfaces;
+using SmartSchool.Infrastructure.Services.Master;
 
 using SmartSchool.Application.Common.Interfaces;
 using SmartSchool.Application.Common.Settings;
@@ -30,6 +32,7 @@ public static class InfrastructureServiceCollection
     services.AddScoped<ICurrentUserService, CurrentUserService>();
     services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
     services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IClassRoomService, ClassRoomService>();
 
     return services;
 }
