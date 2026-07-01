@@ -3,30 +3,30 @@ using SmartSchool.Application.Features.Guardians.Contracts;
 
 namespace SmartSchool.Application.Features.Guardians.Validators;
 
-public class CreateGuardianValidator
-    : AbstractValidator<CreateGuardianRequest>
+public class CreateGuardianValidator : AbstractValidator<CreateGuardianRequest>
 {
     public CreateGuardianValidator()
     {
-        RuleFor(x => x.GuardianCode)
-            .NotEmpty()
-            .MaximumLength(20);
-
         RuleFor(x => x.FullName)
             .NotEmpty()
-            .MaximumLength(150);
+            .MaximumLength(100);
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty()
             .MaximumLength(20);
 
         RuleFor(x => x.Email)
+            .MaximumLength(100)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
-        RuleFor(x => x.Gender)
-            .NotEmpty()
-            .Must(x => x == "Male" || x == "Female")
-            .WithMessage("Gender must be either 'Male' or 'Female'.");
+        RuleFor(x => x.Address)
+            .MaximumLength(255);
+
+        RuleFor(x => x.Occupation)
+            .MaximumLength(100);
+
+        RuleFor(x => x.Relationship)
+            .IsInEnum();
     }
 }

@@ -12,6 +12,7 @@ using SmartSchool.Infrastructure.Security;
 using SmartSchool.Infrastructure.Services.Authentication;
 using SmartSchool.Application.Features.Authentication.Login;
 using SmartSchool.Infrastructure.Services;
+using SmartSchool.Application.Features.Guardians.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -34,6 +35,7 @@ services.AddHttpContextAccessor();
     services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IClassRoomService, ClassRoomService>();
+    services.AddScoped<IGuardianService, GuardianService>();
 
     return services;
 }
