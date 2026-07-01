@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Infrastructure.Persistence.Context;
 using SmartSchool.Application.Features.ClassRooms.Interfaces;
 using SmartSchool.Infrastructure.Services.Master;
+using SmartSchool.Application.Features.Guardians.Interfaces;
 
 using SmartSchool.Application.Common.Interfaces;
 using SmartSchool.Application.Common.Settings;
@@ -12,7 +13,6 @@ using SmartSchool.Infrastructure.Security;
 using SmartSchool.Infrastructure.Services.Authentication;
 using SmartSchool.Application.Features.Authentication.Login;
 using SmartSchool.Infrastructure.Services;
-using SmartSchool.Application.Features.Guardians.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
