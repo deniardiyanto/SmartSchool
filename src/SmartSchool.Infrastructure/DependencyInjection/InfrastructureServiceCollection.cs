@@ -18,6 +18,7 @@ using SmartSchool.Application.Features.BarcodeCards.Interfaces;
 using SmartSchool.Application.Features.Attendances.Interfaces;
 using SmartSchool.Infrastructure.Services.Attend;
 using SmartSchool.Application.Features.Attendances.Scan.Interfaces;
+using SmartSchool.Application.Features.AttendancePoints.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -45,6 +46,7 @@ services.AddHttpContextAccessor();
     services.AddScoped<IBarcodeCardService, BarcodeCardService>();
     services.AddScoped<IAttendanceService, AttendanceService>();
     services.AddScoped<IAttendanceScannerService, AttendanceScannerService>();
+    services.AddScoped<IAttendancePointService, AttendancePointService>();
 
     return services;
 }
