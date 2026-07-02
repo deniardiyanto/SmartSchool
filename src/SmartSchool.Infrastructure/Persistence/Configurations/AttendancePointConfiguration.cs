@@ -25,5 +25,7 @@ public class AttendancePointConfiguration : IEntityTypeConfiguration<AttendanceP
             .WithMany(x => x.AttendancePoints)
             .HasForeignKey(x => x.AttendanceId)
             .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(x => x.Description)
+    .HasMaxLength(300);
     }
 }

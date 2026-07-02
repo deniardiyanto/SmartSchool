@@ -21,4 +21,5 @@ public class AttendancePoint : BaseAuditableEntity
     public Student Student { get; set; } = null!;
 
     public Attendance Attendance { get; set; } = null!;
+     public string? Description { get; set; }
 }
