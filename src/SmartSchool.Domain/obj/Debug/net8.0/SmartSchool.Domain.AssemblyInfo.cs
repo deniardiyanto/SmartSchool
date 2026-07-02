@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartSchool.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03627ef50ca0834155e8876210754357d294289b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+15dad198898716b30c57c5bad51da8657478d3c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartSchool.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartSchool.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
