@@ -6,9 +6,9 @@ public enum AttendanceStatus
 
     Late = 2,
 
-    Alpha = 3,
+    Sick = 3,
 
     Permission = 4,
 
-    Sick = 5
+    Alpha = 5
 }
