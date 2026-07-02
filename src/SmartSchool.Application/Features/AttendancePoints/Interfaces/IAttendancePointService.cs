@@ -17,4 +17,6 @@ public interface IAttendancePointService
         UpdateAttendancePointRequest request);
 
     Task DeleteAsync(Guid id);
+    Task<LeaderboardResponse> GetLeaderboardAsync(
+    LeaderboardRequest request);
 }

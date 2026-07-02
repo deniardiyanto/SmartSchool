@@ -73,4 +73,15 @@ public class AttendancePointsController : ControllerBase
             "Deleted",
             "Attendance Point deleted successfully."));
     }
+     [HttpGet("leaderboard")]
+    [ProducesResponseType(typeof(ApiResponse<LeaderboardResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Leaderboard(
+        [FromQuery] LeaderboardRequest request)
+    {
+        var result = await _service.GetLeaderboardAsync(request);
+
+        return Ok(ApiResponse<LeaderboardResponse>.Ok(
+            result,
+            "Leaderboard retrieved successfully."));
+    }
 }

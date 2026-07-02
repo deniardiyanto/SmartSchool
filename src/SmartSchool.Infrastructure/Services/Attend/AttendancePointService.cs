@@ -163,4 +163,73 @@ public class AttendancePointService : IAttendancePointService
 
         await _context.SaveChangesAsync();
     }
+    public async Task<LeaderboardResponse> GetLeaderboardAsync(
+    LeaderboardRequest request)
+{
+    var query = _context.AttendancePoints
+        .Include(x => x.Student)
+            .ThenInclude(x => x.ClassRoom)
+        .Where(x => !x.IsDeleted);
+
+    if (request.ClassRoomId.HasValue)
+    {
+        query = query.Where(x =>
+            x.Student.ClassRoomId == request.ClassRoomId);
+    }
+
+    if (request.StartDate.HasValue)
+    {
+        var start = request.StartDate.Value.ToDateTime(TimeOnly.MinValue);
+
+        query = query.Where(x =>
+            x.PointDate >= start);
+    }
+
+    if (request.EndDate.HasValue)
+    {
+        var end = request.EndDate.Value.ToDateTime(TimeOnly.MaxValue);
+
+        query = query.Where(x =>
+            x.PointDate <= end);
+    }
+
+    var ranking = await query
+        .GroupBy(x => new
+        {
+            x.StudentId,
+            x.Student.NIS,
+            x.Student.FullName,
+            ClassRoom = x.Student.ClassRoom.Name
+        })
+        .Select(x => new
+        {
+            x.Key.StudentId,
+            x.Key.NIS,
+            x.Key.FullName,
+            x.Key.ClassRoom,
+            TotalPoint = x.Sum(y => y.Point)
+        })
+        .OrderByDescending(x => x.TotalPoint)
+        .Take(request.Top)
+        .ToListAsync();
+
+    var response = new LeaderboardResponse();
+
+    var rank = 1;
+
+    foreach (var item in ranking)
+    {
+        response.Items.Add(new LeaderboardDto
+        {
+            Rank = rank++,
+            StudentId = item.StudentId,
+            NIS = item.NIS,
+            StudentName = item.FullName,
+            ClassRoomName = item.ClassRoom,
+            TotalPoint = item.TotalPoint
+        });
+    }
+
+    return response;
+}
 }
