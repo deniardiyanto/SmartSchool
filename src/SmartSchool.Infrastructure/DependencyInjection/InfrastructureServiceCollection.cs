@@ -13,6 +13,7 @@ using SmartSchool.Infrastructure.Security;
 using SmartSchool.Infrastructure.Services.Authentication;
 using SmartSchool.Application.Features.Authentication.Login;
 using SmartSchool.Infrastructure.Services;
+using SmartSchool.Application.Features.Students.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -36,6 +37,7 @@ services.AddHttpContextAccessor();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IClassRoomService, ClassRoomService>();
     services.AddScoped<IGuardianService, GuardianService>();
+    services.AddScoped<IStudentService, StudentService>();
 
     return services;
 }
