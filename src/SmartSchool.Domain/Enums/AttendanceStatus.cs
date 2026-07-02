@@ -10,5 +10,5 @@ public enum AttendanceStatus
 
     Permission = 4,
 
-    Alpha = 5
+    Absent = 5
 }
