@@ -160,13 +160,17 @@ public class StudentService : IStudentService
             FullName = request.FullName,
             Gender = request.Gender,
             BirthPlace = request.BirthPlace,
-            BirthDate = request.BirthDate,
+            BirthDate = DateTime.SpecifyKind(
+        request.BirthDate,
+        DateTimeKind.Utc),
             Address = request.Address,
             PhotoUrl = request.PhotoUrl,
             ClassRoomId = request.ClassRoomId,
             GuardianId = request.GuardianId,
             Status = request.Status,
-            EnrollmentDate = request.EnrollmentDate,
+            EnrollmentDate = DateTime.SpecifyKind(
+        request.EnrollmentDate,
+        DateTimeKind.Utc),
             IsActive = true
         };
 
@@ -211,13 +215,17 @@ public class StudentService : IStudentService
         student.FullName = request.FullName;
         student.Gender = request.Gender;
         student.BirthPlace = request.BirthPlace;
-        student.BirthDate = request.BirthDate;
+        student.BirthDate = DateTime.SpecifyKind(
+        request.BirthDate,
+        DateTimeKind.Utc);
         student.Address = request.Address;
         student.PhotoUrl = request.PhotoUrl;
         student.ClassRoomId = request.ClassRoomId;
         student.GuardianId = request.GuardianId;
         student.Status = request.Status;
-        student.EnrollmentDate = request.EnrollmentDate;
+        student.EnrollmentDate = DateTime.SpecifyKind(
+        request.EnrollmentDate,
+        DateTimeKind.Utc);
         student.IsActive = request.IsActive;
 
         await _context.SaveChangesAsync();
