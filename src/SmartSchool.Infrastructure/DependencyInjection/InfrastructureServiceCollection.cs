@@ -19,6 +19,7 @@ using SmartSchool.Application.Features.Attendances.Interfaces;
 using SmartSchool.Infrastructure.Services.Attend;
 using SmartSchool.Application.Features.Attendances.Scan.Interfaces;
 using SmartSchool.Application.Features.AttendancePoints.Interfaces;
+using SmartSchool.Application.Features.Attendances.Dashboard.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -47,6 +48,9 @@ services.AddHttpContextAccessor();
     services.AddScoped<IAttendanceService, AttendanceService>();
     services.AddScoped<IAttendanceScannerService, AttendanceScannerService>();
     services.AddScoped<IAttendancePointService, AttendancePointService>();
+    services.AddScoped<
+    IAttendanceDashboardService,
+    AttendanceDashboardService>();
 
     return services;
 }
