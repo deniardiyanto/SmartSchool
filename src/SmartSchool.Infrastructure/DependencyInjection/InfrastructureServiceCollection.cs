@@ -14,6 +14,7 @@ using SmartSchool.Infrastructure.Services.Authentication;
 using SmartSchool.Application.Features.Authentication.Login;
 using SmartSchool.Infrastructure.Services;
 using SmartSchool.Application.Features.Students.Interfaces;
+using SmartSchool.Application.Features.BarcodeCards.Interfaces;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -38,6 +39,7 @@ services.AddHttpContextAccessor();
     services.AddScoped<IClassRoomService, ClassRoomService>();
     services.AddScoped<IGuardianService, GuardianService>();
     services.AddScoped<IStudentService, StudentService>();
+    services.AddScoped<IBarcodeCardService, BarcodeCardService>();
 
     return services;
 }

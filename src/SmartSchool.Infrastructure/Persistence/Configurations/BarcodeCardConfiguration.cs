@@ -44,5 +44,8 @@ public class BarcodeCardConfiguration : IEntityTypeConfiguration<BarcodeCard>
             .WithOne(x => x.BarcodeCard)
             .HasForeignKey(x => x.BarcodeCardId)
             .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex(x => x.StudentId).IsUnique();
+
+
     }
 }
