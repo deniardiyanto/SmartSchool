@@ -323,6 +323,7 @@ public class AttendanceScannerService : IAttendanceScannerService
         if (attendance == null)
         {
             var status = GetAttendanceStatus(rule, now);
+            var result = CalculateAttendanceResult(now, rule);
 
             attendance = new Attendance
             {
@@ -336,7 +337,7 @@ public class AttendanceScannerService : IAttendanceScannerService
 
                 CheckInTime = now,
 
-                Status = status,
+                Status = result.status,
 
                 CreatedAt = now,
 
@@ -361,7 +362,9 @@ public class AttendanceScannerService : IAttendanceScannerService
                     BarcodeValue = barcode.BarcodeValue,
                     ScanType = "CheckIn",
                     ScanTime = now,
-                    Status = attendance.Status.ToString()
+                    Status = attendance.Status.ToString(),
+                    Point = result.point,
+                    Reason = result.reason
                 },
                 "Check-in berhasil.");
         }
@@ -452,27 +455,26 @@ public class AttendanceScannerService : IAttendanceScannerService
 
         int point;
         string reason;
+        string description;
 
         switch (attendance.Status)
         {
             case AttendanceStatus.Present:
                 point = rule.PresentPoint;
                 reason = "Present";
+                description = "Student checked in on time.";
                 break;
 
             case AttendanceStatus.Late:
                 point = rule.LatePoint;
                 reason = "Late";
-                break;
-
-            case AttendanceStatus.Absent:
-                point = rule.AbsentPoint;
-                reason = "Absent";
+                description = "Student checked in after allowed time.";
                 break;
 
             default:
                 point = 0;
                 reason = attendance.Status.ToString();
+                description = "Attendance point generated automatically.";
                 break;
         }
 
@@ -488,7 +490,7 @@ public class AttendanceScannerService : IAttendanceScannerService
 
             Reason = reason,
 
-            Description = $"Generated automatically ({reason}).",
+            Description = description,
 
             PointDate = _dateTimeProvider.UtcNow,
 
@@ -500,5 +502,29 @@ public class AttendanceScannerService : IAttendanceScannerService
         _context.AttendancePoints.Add(entity);
 
         await _context.SaveChangesAsync();
+    }
+    private (AttendanceStatus status, int point, string reason)
+    CalculateAttendanceResult(
+        DateTime now,
+        AttendanceRule rule)
+    {
+        var currentTime = TimeOnly.FromDateTime(now);
+
+        if (currentTime <= rule.CheckInEnd)
+        {
+            return
+            (
+                AttendanceStatus.Present,
+                rule.PresentPoint,
+                "Present"
+            );
+        }
+
+        return
+        (
+            AttendanceStatus.Late,
+            rule.LatePoint,
+            "Late"
+        );
     }
 }
