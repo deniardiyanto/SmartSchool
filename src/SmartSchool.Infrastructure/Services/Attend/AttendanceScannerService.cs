@@ -1,13 +1,435 @@
+// using Microsoft.EntityFrameworkCore;
+// using SmartSchool.Application.Common.Interfaces;
+// using SmartSchool.Application.Common.Models;
+// using SmartSchool.Application.Features.Attendances.Scan.Contracts;
+// using SmartSchool.Application.Features.Attendances.Scan.Interfaces;
+// using SmartSchool.Domain.Entities;
+// using SmartSchool.Domain.Enums;
+// using SmartSchool.Infrastructure.Persistence.Context;
+// using SmartSchool.Application.Features.WhatsApp.Contracts;
+// using SmartSchool.Application.Features.WhatsApp.Interfaces;
+
+// namespace SmartSchool.Infrastructure.Services.Attend;
+
+// public class AttendanceScannerService : IAttendanceScannerService
+// {
+//     private readonly SmartSchoolDbContext _context;
+//     private readonly IDateTimeProvider _dateTimeProvider;
+//     private readonly ICurrentUserService _currentUser;
+//     private readonly IWhatsAppService _whatsAppService;
+
+//     public AttendanceScannerService(
+//     SmartSchoolDbContext context,
+//     IDateTimeProvider dateTimeProvider,
+//     ICurrentUserService currentUser,
+//     IWhatsAppService whatsAppService)
+//     {
+//         _context = context;
+//         _dateTimeProvider = dateTimeProvider;
+//         _currentUser = currentUser;
+//         _whatsAppService = whatsAppService;
+//     }
+
+//     public async Task<ApiResponse<ScanAttendanceResponse>> ScanAsync(
+//         ScanAttendanceRequest request)
+//     {
+//         var now = _dateTimeProvider.UtcNow;
+
+//         var today = DateOnly.FromDateTime(now);
+
+//         var rule = await GetAttendanceRuleAsync();
+
+//         //-------------------------------------------------------
+//         // Cari Barcode
+//         //-------------------------------------------------------
+
+//         var barcode = await _context.BarcodeCards
+//     .Include(x => x.Student)
+//         .ThenInclude(x => x.ClassRoom)
+//     .Include(x => x.Student)
+//         .ThenInclude(x => x.Guardian)
+//     .FirstOrDefaultAsync(x =>
+//         x.BarcodeValue == request.BarcodeValue &&
+//         !x.IsDeleted);
+
+//         if (barcode == null)
+//         {
+//             return ApiResponse<ScanAttendanceResponse>.Fail(
+//                 "Barcode tidak ditemukan.");
+//         }
+
+//         //-------------------------------------------------------
+//         // Barcode aktif
+//         //-------------------------------------------------------
+
+//         if (!barcode.IsActive)
+//         {
+//             return ApiResponse<ScanAttendanceResponse>.Fail(
+//                 "Barcode sudah tidak aktif.");
+//         }
+
+//         //-------------------------------------------------------
+//         // Barcode expired
+//         //-------------------------------------------------------
+
+//         if (barcode.ExpiredDate.HasValue &&
+//             barcode.ExpiredDate.Value < now)
+//         {
+//             return ApiResponse<ScanAttendanceResponse>.Fail(
+//                 "Barcode sudah expired.");
+//         }
+
+//         //-------------------------------------------------------
+//         // Student aktif
+//         //-------------------------------------------------------
+
+//         var student = barcode.Student;
+
+//         if (!student.IsActive)
+//         {
+//             return ApiResponse<ScanAttendanceResponse>.Fail(
+//                 "Student sudah tidak aktif.");
+//         }
+
+//         //-------------------------------------------------------
+//         // Attendance hari ini
+//         //-------------------------------------------------------
+
+//         var attendance = await _context.Attendances
+//             .FirstOrDefaultAsync(x =>
+//                 x.StudentId == student.Id &&
+//                 x.AttendanceDate == today &&
+//                 !x.IsDeleted);
+
+//         //-------------------------------------------------------
+//         // CHECK IN
+//         //-------------------------------------------------------
+
+//         if (attendance == null)
+//         {
+//             var status = GetAttendanceStatus(rule, now);
+//             var result = CalculateAttendanceResult(now, rule);
+
+//             attendance = new Attendance
+//             {
+//                 Id = Guid.NewGuid(),
+
+//                 StudentId = student.Id,
+
+//                 BarcodeCardId = barcode.Id,
+
+//                 AttendanceDate = today,
+
+//                 CheckInTime = now,
+
+//                 Status = result.status,
+
+//                 CreatedAt = now,
+
+//                 CreatedBy = _currentUser.UserId
+//             };
+
+//             _context.Attendances.Add(attendance);
+
+//             await _context.SaveChangesAsync();
+
+//             await CreateAttendancePointAsync(
+//                 attendance,
+//                 rule);
+//             try
+//             {
+//                 await SendAttendanceNotificationAsync(
+//                     student,
+//                     attendance);
+//             }
+//             catch
+//             {
+//                 // Jangan menggagalkan proses scan jika WA gagal
+//             }
+
+//             return ApiResponse<ScanAttendanceResponse>.Ok(
+//                 new ScanAttendanceResponse
+//                 {
+//                     AttendanceId = attendance.Id,
+//                     StudentId = student.Id,
+//                     StudentName = student.FullName,
+//                     ClassRoomName = student.ClassRoom.Name,
+//                     BarcodeValue = barcode.BarcodeValue,
+//                     ScanType = "CheckIn",
+//                     ScanTime = now,
+//                     Status = attendance.Status.ToString(),
+//                     Point = result.point,
+//                     Reason = result.reason
+//                 },
+//                 "Check-in berhasil.");
+//         }
+
+//         //-------------------------------------------------------
+//         // CHECK OUT
+//         //-------------------------------------------------------
+
+//         if (attendance.CheckOutTime == null)
+//         {
+//             attendance.CheckOutTime = now;
+
+//             attendance.UpdatedAt = now;
+
+//             attendance.UpdatedBy = _currentUser.UserId;
+
+//             await _context.SaveChangesAsync();
+
+//             return ApiResponse<ScanAttendanceResponse>.Ok(
+//                 new ScanAttendanceResponse
+//                 {
+//                     AttendanceId = attendance.Id,
+//                     StudentId = student.Id,
+//                     StudentName = student.FullName,
+//                     ClassRoomName = student.ClassRoom.Name,
+//                     BarcodeValue = barcode.BarcodeValue,
+//                     ScanType = "CheckOut",
+//                     ScanTime = now,
+//                     Status = attendance.Status.ToString()
+//                 },
+//                 "Check-out berhasil.");
+//         }
+
+//         //-------------------------------------------------------
+//         // Sudah checkout
+//         //-------------------------------------------------------
+
+//         return ApiResponse<ScanAttendanceResponse>.Fail(
+//             "Attendance hari ini sudah selesai.");
+//     }
+
+//     /// <summary>
+//     /// Ambil attendance rule aktif.
+//     /// </summary>
+//     private async Task<AttendanceRule> GetAttendanceRuleAsync()
+//     {
+//         var rule = await _context.AttendanceRules
+//             .FirstOrDefaultAsync(x =>
+//                 x.IsActive &&
+//                 !x.IsDeleted);
+
+//         if (rule == null)
+//             throw new Exception(
+//                 "Attendance Rule belum dikonfigurasi.");
+
+//         return rule;
+//     }
+
+//     /// <summary>
+//     /// Menentukan status attendance berdasarkan rule.
+//     /// </summary>
+//     private AttendanceStatus GetAttendanceStatus(
+//         AttendanceRule rule,
+//         DateTime now)
+//     {
+//         var currentTime = TimeOnly.FromDateTime(now);
+
+//         if (currentTime <= rule.CheckInEnd)
+//             return AttendanceStatus.Present;
+
+//         return AttendanceStatus.Late;
+//     }
+
+//     /// <summary>
+//     /// Membuat attendance point otomatis.
+//     /// </summary>
+//     private async Task CreateAttendancePointAsync(
+//         Attendance attendance,
+//         AttendanceRule rule)
+//     {
+//         var exists = await _context.AttendancePoints
+//             .AnyAsync(x =>
+//                 x.AttendanceId == attendance.Id &&
+//                 !x.IsDeleted);
+
+//         if (exists)
+//             return;
+
+//         int point;
+//         string reason;
+//         string description;
+
+//         switch (attendance.Status)
+//         {
+//             case AttendanceStatus.Present:
+//                 point = rule.PresentPoint;
+//                 reason = "Present";
+//                 description = "Student checked in on time.";
+//                 break;
+
+//             case AttendanceStatus.Late:
+//                 point = rule.LatePoint;
+//                 reason = "Late";
+//                 description = "Student checked in after allowed time.";
+//                 break;
+
+//             default:
+//                 point = 0;
+//                 reason = attendance.Status.ToString();
+//                 description = "Attendance point generated automatically.";
+//                 break;
+//         }
+
+//         var entity = new AttendancePoint
+//         {
+//             Id = Guid.NewGuid(),
+
+//             AttendanceId = attendance.Id,
+
+//             StudentId = attendance.StudentId,
+
+//             Point = point,
+
+//             Reason = reason,
+
+//             Description = description,
+
+//             PointDate = _dateTimeProvider.UtcNow,
+
+//             CreatedAt = _dateTimeProvider.UtcNow,
+
+//             CreatedBy = _currentUser.UserId
+//         };
+
+//         _context.AttendancePoints.Add(entity);
+
+//         await _context.SaveChangesAsync();
+//     }
+//     private (AttendanceStatus status, int point, string reason)
+//     CalculateAttendanceResult(
+//         DateTime now,
+//         AttendanceRule rule)
+//     {
+//         var currentTime = TimeOnly.FromDateTime(now);
+
+//         if (currentTime <= rule.CheckInEnd)
+//         {
+//             return
+//             (
+//                 AttendanceStatus.Present,
+//                 rule.PresentPoint,
+//                 "Present"
+//             );
+//         }
+
+//         return
+//         (
+//             AttendanceStatus.Late,
+//             rule.LatePoint,
+//             "Late"
+//         );
+//     }
+//     private static string BuildAttendanceMessage(
+//     Student student,
+//     Attendance attendance)
+//     {
+//         var checkIn =
+//             attendance.CheckInTime?
+//                 .ToLocalTime()
+//                 .ToString("dd/MM/yyyy HH:mm")
+//             ?? "-";
+
+//         return
+//     $"""
+// Halo Bapak/Ibu,
+
+// Kami informasikan bahwa siswa:
+
+// Nama   : {student.FullName}
+// Kelas  : {student.ClassRoom.Name}
+
+// Telah melakukan CHECK-IN pada:
+
+// {checkIn}
+
+// Status :
+// {attendance.Status}
+
+// Terima kasih.
+
+// SmartSchool
+// """;
+//     }
+//     private async Task SendAttendanceNotificationAsync(
+//     Student student,
+//     Attendance attendance)
+//     {
+//         if (student.Guardian == null)
+//             return;
+
+//         if (string.IsNullOrWhiteSpace(
+//             student.Guardian.PhoneNumber))
+//             return;
+
+//         var message =
+//             BuildAttendanceMessage(
+//                 student,
+//                 attendance);
+
+//         var response =
+//             await _whatsAppService.SendAsync(
+//                 new SendWhatsAppRequest
+//                 {
+//                     PhoneNumber =
+//                         student.Guardian.PhoneNumber,
+
+//                     Message = message
+//                 });
+
+//         await SaveWhatsAppLogAsync(
+//             attendance,
+//             student.Guardian.PhoneNumber,
+//             message,
+//             response);
+//     }
+//     private async Task SaveWhatsAppLogAsync(
+//         Attendance attendance,
+//         string phoneNumber,
+//         string message,
+//         SendWhatsAppResponse response)
+//     {
+//         var entity = new WhatsAppLog
+//         {
+//             Id = Guid.NewGuid(),
+
+//             AttendanceId = attendance.Id,
+
+//             PhoneNumber = phoneNumber,
+
+//             Message = message,
+
+//             Status = response.Success
+//                 ? "Success"
+//                 : "Failed",
+
+//             ProviderResponse =
+//                 response.ProviderMessage,
+
+//             SentAt = _dateTimeProvider.UtcNow,
+
+//             CreatedAt = _dateTimeProvider.UtcNow,
+
+//             CreatedBy = _currentUser.UserId
+//         };
+
+//         _context.WhatsAppLogs.Add(entity);
+
+//         await _context.SaveChangesAsync();
+//     }
+// }
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Common.Interfaces;
 using SmartSchool.Application.Common.Models;
 using SmartSchool.Application.Features.Attendances.Scan.Contracts;
 using SmartSchool.Application.Features.Attendances.Scan.Interfaces;
+using SmartSchool.Application.Features.WhatsApp.Contracts;
+using SmartSchool.Application.Features.WhatsApp.Interfaces;
 using SmartSchool.Domain.Entities;
 using SmartSchool.Domain.Enums;
 using SmartSchool.Infrastructure.Persistence.Context;
-using SmartSchool.Application.Features.WhatsApp.Contracts;
-using SmartSchool.Application.Features.WhatsApp.Interfaces;
 
 namespace SmartSchool.Infrastructure.Services.Attend;
 
@@ -17,40 +439,42 @@ public class AttendanceScannerService : IAttendanceScannerService
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ICurrentUserService _currentUser;
     private readonly IWhatsAppService _whatsAppService;
+    private readonly IAttendanceMessageBuilder _messageBuilder;
 
     public AttendanceScannerService(
-    SmartSchoolDbContext context,
-    IDateTimeProvider dateTimeProvider,
-    ICurrentUserService currentUser,
-    IWhatsAppService whatsAppService)
+        SmartSchoolDbContext context,
+        IDateTimeProvider dateTimeProvider,
+        ICurrentUserService currentUser,
+        IWhatsAppService whatsAppService,
+        IAttendanceMessageBuilder messageBuilder)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
         _currentUser = currentUser;
         _whatsAppService = whatsAppService;
+        _messageBuilder = messageBuilder;
     }
 
     public async Task<ApiResponse<ScanAttendanceResponse>> ScanAsync(
         ScanAttendanceRequest request)
     {
         var now = _dateTimeProvider.UtcNow;
-
         var today = DateOnly.FromDateTime(now);
 
         var rule = await GetAttendanceRuleAsync();
 
         //-------------------------------------------------------
-        // Cari Barcode
+        // Cari barcode
         //-------------------------------------------------------
 
         var barcode = await _context.BarcodeCards
-    .Include(x => x.Student)
-        .ThenInclude(x => x.ClassRoom)
-    .Include(x => x.Student)
-        .ThenInclude(x => x.Guardian)
-    .FirstOrDefaultAsync(x =>
-        x.BarcodeValue == request.BarcodeValue &&
-        !x.IsDeleted);
+            .Include(x => x.Student)
+                .ThenInclude(x => x.ClassRoom)
+            .Include(x => x.Student)
+                .ThenInclude(x => x.Guardian)
+            .FirstOrDefaultAsync(x =>
+                x.BarcodeValue == request.BarcodeValue &&
+                !x.IsDeleted);
 
         if (barcode == null)
         {
@@ -58,19 +482,11 @@ public class AttendanceScannerService : IAttendanceScannerService
                 "Barcode tidak ditemukan.");
         }
 
-        //-------------------------------------------------------
-        // Barcode aktif
-        //-------------------------------------------------------
-
         if (!barcode.IsActive)
         {
             return ApiResponse<ScanAttendanceResponse>.Fail(
                 "Barcode sudah tidak aktif.");
         }
-
-        //-------------------------------------------------------
-        // Barcode expired
-        //-------------------------------------------------------
 
         if (barcode.ExpiredDate.HasValue &&
             barcode.ExpiredDate.Value < now)
@@ -78,10 +494,6 @@ public class AttendanceScannerService : IAttendanceScannerService
             return ApiResponse<ScanAttendanceResponse>.Fail(
                 "Barcode sudah expired.");
         }
-
-        //-------------------------------------------------------
-        // Student aktif
-        //-------------------------------------------------------
 
         var student = barcode.Student;
 
@@ -107,61 +519,12 @@ public class AttendanceScannerService : IAttendanceScannerService
 
         if (attendance == null)
         {
-            var status = GetAttendanceStatus(rule, now);
-            var result = CalculateAttendanceResult(now, rule);
-
-            attendance = new Attendance
-            {
-                Id = Guid.NewGuid(),
-
-                StudentId = student.Id,
-
-                BarcodeCardId = barcode.Id,
-
-                AttendanceDate = today,
-
-                CheckInTime = now,
-
-                Status = result.status,
-
-                CreatedAt = now,
-
-                CreatedBy = _currentUser.UserId
-            };
-
-            _context.Attendances.Add(attendance);
-
-            await _context.SaveChangesAsync();
-
-            await CreateAttendancePointAsync(
-                attendance,
-                rule);
-            try
-            {
-                await SendAttendanceNotificationAsync(
-                    student,
-                    attendance);
-            }
-            catch
-            {
-                // Jangan menggagalkan proses scan jika WA gagal
-            }
-
-            return ApiResponse<ScanAttendanceResponse>.Ok(
-                new ScanAttendanceResponse
-                {
-                    AttendanceId = attendance.Id,
-                    StudentId = student.Id,
-                    StudentName = student.FullName,
-                    ClassRoomName = student.ClassRoom.Name,
-                    BarcodeValue = barcode.BarcodeValue,
-                    ScanType = "CheckIn",
-                    ScanTime = now,
-                    Status = attendance.Status.ToString(),
-                    Point = result.point,
-                    Reason = result.reason
-                },
-                "Check-in berhasil.");
+            return await ProcessCheckInAsync(
+                student,
+                barcode,
+                rule,
+                now,
+                today);
         }
 
         //-------------------------------------------------------
@@ -170,31 +533,15 @@ public class AttendanceScannerService : IAttendanceScannerService
 
         if (attendance.CheckOutTime == null)
         {
-            attendance.CheckOutTime = now;
-
-            attendance.UpdatedAt = now;
-
-            attendance.UpdatedBy = _currentUser.UserId;
-
-            await _context.SaveChangesAsync();
-
-            return ApiResponse<ScanAttendanceResponse>.Ok(
-                new ScanAttendanceResponse
-                {
-                    AttendanceId = attendance.Id,
-                    StudentId = student.Id,
-                    StudentName = student.FullName,
-                    ClassRoomName = student.ClassRoom.Name,
-                    BarcodeValue = barcode.BarcodeValue,
-                    ScanType = "CheckOut",
-                    ScanTime = now,
-                    Status = attendance.Status.ToString()
-                },
-                "Check-out berhasil.");
+            return await ProcessCheckOutAsync(
+                student,
+                barcode,
+                attendance,
+                now);
         }
 
         //-------------------------------------------------------
-        // Sudah checkout
+        // SUDAH CHECK OUT
         //-------------------------------------------------------
 
         return ApiResponse<ScanAttendanceResponse>.Fail(
@@ -202,7 +549,189 @@ public class AttendanceScannerService : IAttendanceScannerService
     }
 
     /// <summary>
-    /// Ambil attendance rule aktif.
+    /// Proses Check-In
+    /// </summary>
+    private async Task<ApiResponse<ScanAttendanceResponse>>
+        ProcessCheckInAsync(
+        Student student,
+        BarcodeCard barcode,
+        AttendanceRule rule,
+        DateTime now,
+        DateOnly today)
+    {
+        var result = CalculateAttendanceResult(
+            now,
+            rule);
+
+        var attendance = await CreateAttendanceAsync(
+            student,
+            barcode,
+            result.status,
+            now,
+            today);
+
+        await CreateAttendancePointAsync(
+            attendance,
+            rule);
+
+        try
+        {
+            await SendAttendanceNotificationAsync(
+     student,
+     attendance,
+     result.point);
+        }
+        catch
+        {
+            // Jangan menggagalkan proses scan
+        }
+
+        return ApiResponse<ScanAttendanceResponse>.Ok(
+            BuildCheckInResponse(
+                attendance,
+                student,
+                barcode,
+                result,
+                now),
+            "Check-in berhasil.");
+    }
+    /// <summary>
+    /// Proses Check-Out
+    /// </summary>
+    private async Task<ApiResponse<ScanAttendanceResponse>>
+        ProcessCheckOutAsync(
+        Student student,
+        BarcodeCard barcode,
+        Attendance attendance,
+        DateTime now)
+    {
+        attendance.CheckOutTime = now;
+        attendance.UpdatedAt = now;
+        attendance.UpdatedBy = _currentUser.UserId;
+
+        await _context.SaveChangesAsync();
+
+        try
+        {
+            await SendAttendanceNotificationAsync(
+    student,
+    attendance,
+    0);
+        }
+        catch
+        {
+            // Ignore jika WA gagal
+        }
+
+        return ApiResponse<ScanAttendanceResponse>.Ok(
+            BuildCheckOutResponse(
+                attendance,
+                student,
+                barcode,
+                now),
+            "Check-out berhasil.");
+    }
+
+    /// <summary>
+    /// Membuat Attendance baru saat Check-In
+    /// </summary>
+    private async Task<Attendance> CreateAttendanceAsync(
+        Student student,
+        BarcodeCard barcode,
+        AttendanceStatus status,
+        DateTime now,
+        DateOnly today)
+    {
+        var attendance = new Attendance
+        {
+            Id = Guid.NewGuid(),
+
+            StudentId = student.Id,
+
+            BarcodeCardId = barcode.Id,
+
+            AttendanceDate = today,
+
+            CheckInTime = now,
+
+            Status = status,
+
+            CreatedAt = now,
+
+            CreatedBy = _currentUser.UserId
+        };
+
+        _context.Attendances.Add(attendance);
+
+        await _context.SaveChangesAsync();
+
+        return attendance;
+    }
+
+    /// <summary>
+    /// Response Check-In
+    /// </summary>
+    private static ScanAttendanceResponse BuildCheckInResponse(
+        Attendance attendance,
+        Student student,
+        BarcodeCard barcode,
+        (AttendanceStatus status, int point, string reason) result,
+        DateTime now)
+    {
+        return new ScanAttendanceResponse
+        {
+            AttendanceId = attendance.Id,
+
+            StudentId = student.Id,
+
+            StudentName = student.FullName,
+
+            ClassRoomName = student.ClassRoom.Name,
+
+            BarcodeValue = barcode.BarcodeValue,
+
+            ScanType = "CheckIn",
+
+            ScanTime = now,
+
+            Status = attendance.Status.ToString(),
+
+            Point = result.point,
+
+            Reason = result.reason
+        };
+    }
+
+    /// <summary>
+    /// Response Check-Out
+    /// </summary>
+    private static ScanAttendanceResponse BuildCheckOutResponse(
+        Attendance attendance,
+        Student student,
+        BarcodeCard barcode,
+        DateTime now)
+    {
+        return new ScanAttendanceResponse
+        {
+            AttendanceId = attendance.Id,
+
+            StudentId = student.Id,
+
+            StudentName = student.FullName,
+
+            ClassRoomName = student.ClassRoom.Name,
+
+            BarcodeValue = barcode.BarcodeValue,
+
+            ScanType = "CheckOut",
+
+            ScanTime = now,
+
+            Status = attendance.Status.ToString()
+        };
+    }
+    /// <summary>
+    /// Ambil Attendance Rule aktif
     /// </summary>
     private async Task<AttendanceRule> GetAttendanceRuleAsync()
     {
@@ -219,22 +748,35 @@ public class AttendanceScannerService : IAttendanceScannerService
     }
 
     /// <summary>
-    /// Menentukan status attendance berdasarkan rule.
+    /// Menghitung status dan point berdasarkan rule.
     /// </summary>
-    private AttendanceStatus GetAttendanceStatus(
-        AttendanceRule rule,
-        DateTime now)
+    private (AttendanceStatus status, int point, string reason)
+        CalculateAttendanceResult(
+        DateTime now,
+        AttendanceRule rule)
     {
         var currentTime = TimeOnly.FromDateTime(now);
 
         if (currentTime <= rule.CheckInEnd)
-            return AttendanceStatus.Present;
+        {
+            return
+            (
+                AttendanceStatus.Present,
+                rule.PresentPoint,
+                "Present"
+            );
+        }
 
-        return AttendanceStatus.Late;
+        return
+        (
+            AttendanceStatus.Late,
+            rule.LatePoint,
+            "Late"
+        );
     }
 
     /// <summary>
-    /// Membuat attendance point otomatis.
+    /// Membuat Attendance Point otomatis.
     /// </summary>
     private async Task CreateAttendancePointAsync(
         Attendance attendance,
@@ -298,84 +840,83 @@ public class AttendanceScannerService : IAttendanceScannerService
 
         await _context.SaveChangesAsync();
     }
-    private (AttendanceStatus status, int point, string reason)
-    CalculateAttendanceResult(
-        DateTime now,
-        AttendanceRule rule)
-    {
-        var currentTime = TimeOnly.FromDateTime(now);
 
-        if (currentTime <= rule.CheckInEnd)
-        {
-            return
-            (
-                AttendanceStatus.Present,
-                rule.PresentPoint,
-                "Present"
-            );
-        }
+    /// <summary>
+    /// Kirim notifikasi WhatsApp ke Guardian.
+    /// </summary>
+    //    private async Task SendAttendanceNotificationAsync(
+    //     Student student,
+    //     Attendance attendance,
+    //     int point)
+    //     {
+    //         if (student.Guardian == null)
+    //             return;
 
-        return
-        (
-            AttendanceStatus.Late,
-            rule.LatePoint,
-            "Late"
-        );
-    }
-    private static string BuildAttendanceMessage(
-    Student student,
-    Attendance attendance)
-    {
-        var checkIn =
-            attendance.CheckInTime?
-                .ToLocalTime()
-                .ToString("dd/MM/yyyy HH:mm")
-            ?? "-";
+    //         if (string.IsNullOrWhiteSpace(
+    //             student.Guardian.PhoneNumber))
+    //             return;
 
-        return
-    $"""
-Halo Bapak/Ibu,
+    //         string message;
 
-Kami informasikan bahwa siswa:
+    //         if (attendance.CheckOutTime == null)
+    //         {
+    //             message = _messageBuilder.BuildCheckInMessage(
+    //                 student,
+    //                 attendance);
+    //         }
+    //         else
+    //         {
+    //             message = _messageBuilder.BuildCheckOutMessage(
+    //                 student,
+    //                 attendance);
+    //         }
 
-Nama   : {student.FullName}
-Kelas  : {student.ClassRoom.Name}
+    //         var response =
+    //             await _whatsAppService.SendAsync(
+    //                 new SendWhatsAppRequest
+    //                 {
+    //                     PhoneNumber = student.Guardian.PhoneNumber,
+    //                     Message = message
+    //                 });
 
-Telah melakukan CHECK-IN pada:
-
-{checkIn}
-
-Status :
-{attendance.Status}
-
-Terima kasih.
-
-SmartSchool
-""";
-    }
+    //         await SaveWhatsAppLogAsync(
+    //             attendance,
+    //             student.Guardian.PhoneNumber,
+    //             message,
+    //             response);
+    //     }
     private async Task SendAttendanceNotificationAsync(
-    Student student,
-    Attendance attendance)
+        Student student,
+        Attendance attendance,
+        int point)
     {
         if (student.Guardian == null)
             return;
 
-        if (string.IsNullOrWhiteSpace(
-            student.Guardian.PhoneNumber))
+        if (string.IsNullOrWhiteSpace(student.Guardian.PhoneNumber))
             return;
 
-        var message =
-            BuildAttendanceMessage(
+        string message;
+
+        if (attendance.CheckOutTime == null)
+        {
+            message = _messageBuilder.BuildCheckInMessage(
+                student,
+                attendance,
+                point);
+        }
+        else
+        {
+            message = _messageBuilder.BuildCheckOutMessage(
                 student,
                 attendance);
+        }
 
         var response =
             await _whatsAppService.SendAsync(
                 new SendWhatsAppRequest
                 {
-                    PhoneNumber =
-                        student.Guardian.PhoneNumber,
-
+                    PhoneNumber = student.Guardian.PhoneNumber,
                     Message = message
                 });
 
@@ -385,6 +926,9 @@ SmartSchool
             message,
             response);
     }
+    /// <summary>
+    /// Simpan log WhatsApp.
+    /// </summary>
     private async Task SaveWhatsAppLogAsync(
         Attendance attendance,
         string phoneNumber,
@@ -405,8 +949,7 @@ SmartSchool
                 ? "Success"
                 : "Failed",
 
-            ProviderResponse =
-                response.ProviderMessage,
+            ProviderResponse = response.ProviderMessage,
 
             SentAt = _dateTimeProvider.UtcNow,
 

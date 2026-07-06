@@ -57,6 +57,11 @@ public static class InfrastructureServiceCollection
         services.AddHttpClient<IWhatsAppService, WhatsAppService>();
 services.Configure<FonnteOptions>(
     configuration.GetSection(FonnteOptions.SectionName));
+    services.Configure<SchoolOptions>(
+    configuration.GetSection(SchoolOptions.SectionName));
+    services.AddScoped<
+    IAttendanceMessageBuilder,
+    AttendanceMessageBuilder>();
         return services;
     }
 
