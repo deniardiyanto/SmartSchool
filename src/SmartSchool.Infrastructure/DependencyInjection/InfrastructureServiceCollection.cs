@@ -20,6 +20,8 @@ using SmartSchool.Infrastructure.Services.Attend;
 using SmartSchool.Application.Features.Attendances.Scan.Interfaces;
 using SmartSchool.Application.Features.AttendancePoints.Interfaces;
 using SmartSchool.Application.Features.Attendances.Dashboard.Interfaces;
+using SmartSchool.Application.Features.WhatsApp.Interfaces;
+using SmartSchool.Infrastructure.Services.WhatsApp;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -28,31 +30,32 @@ public static class InfrastructureServiceCollection
     public static IServiceCollection AddInfrastructure(
     this IServiceCollection services,
     IConfiguration configuration)
-{
-    services.Configure<JwtSettings>(
-        configuration.GetSection(JwtSettings.SectionName));
+    {
+        services.Configure<JwtSettings>(
+            configuration.GetSection(JwtSettings.SectionName));
 
-    services.AddDbContext<SmartSchoolDbContext>(options =>
-        options.UseNpgsql(
-            configuration.GetConnectionString("DefaultConnection")));
-services.AddHttpContextAccessor();
-    services.AddScoped<IPasswordHasher, PasswordHasher>();
-    services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-    services.AddScoped<ICurrentUserService, CurrentUserService>();
-    services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-    services.AddScoped<IAuthService, AuthService>();
-    services.AddScoped<IClassRoomService, ClassRoomService>();
-    services.AddScoped<IGuardianService, GuardianService>();
-    services.AddScoped<IStudentService, StudentService>();
-    services.AddScoped<IBarcodeCardService, BarcodeCardService>();
-    services.AddScoped<IAttendanceService, AttendanceService>();
-    services.AddScoped<IAttendanceScannerService, AttendanceScannerService>();
-    services.AddScoped<IAttendancePointService, AttendancePointService>();
-    services.AddScoped<
-    IAttendanceDashboardService,
-    AttendanceDashboardService>();
+        services.AddDbContext<SmartSchoolDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection")));
+        services.AddHttpContextAccessor();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IClassRoomService, ClassRoomService>();
+        services.AddScoped<IGuardianService, GuardianService>();
+        services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IBarcodeCardService, BarcodeCardService>();
+        services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<IAttendanceScannerService, AttendanceScannerService>();
+        services.AddScoped<IAttendancePointService, AttendancePointService>();
+        services.AddScoped<
+        IAttendanceDashboardService,
+        AttendanceDashboardService>();
+        services.AddScoped<IWhatsAppService, WhatsAppService>();
 
-    return services;
-}
-    
+        return services;
+    }
+
 }
