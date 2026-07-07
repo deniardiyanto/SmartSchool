@@ -65,6 +65,9 @@ public static class InfrastructureServiceCollection
         AttendanceMessageBuilder>();
         services.AddScoped<IWhatsAppLogService,
         WhatsAppLogService>();
+        // services.AddScoped<IWhatsAppService, FonnteWhatsAppService>();
+
+        services.AddScoped<IWhatsAppLogService, WhatsAppLogService>();
         return services;
     }
 

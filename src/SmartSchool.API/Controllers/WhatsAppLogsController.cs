@@ -39,4 +39,16 @@ public class WhatsAppLogsController : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Retry WhatsApp
+    /// </summary>
+    [HttpPost("{id:guid}/retry")]
+    public async Task<ActionResult<RetryWhatsAppResponse>> Retry(
+    Guid id)
+    {
+        var result = await _service.RetryAsync(id);
+
+        return Ok(result);
+    }
 }

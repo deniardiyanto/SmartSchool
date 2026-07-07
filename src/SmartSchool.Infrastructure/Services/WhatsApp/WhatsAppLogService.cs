@@ -1,3 +1,148 @@
+// using Microsoft.EntityFrameworkCore;
+// using SmartSchool.Application.Features.WhatsApp.Contracts;
+// using SmartSchool.Application.Features.WhatsApp.Interfaces;
+// using SmartSchool.Infrastructure.Persistence.Context;
+
+// namespace SmartSchool.Infrastructure.Services.WhatsApp;
+
+// public class WhatsAppLogService : IWhatsAppLogService
+// {
+//     private readonly SmartSchoolDbContext _context;
+
+//     public WhatsAppLogService(
+//         SmartSchoolDbContext context)
+//     {
+//         _context = context;
+//     }
+
+//     public async Task<PagedWhatsAppLogResponse> GetPagedAsync(
+//         WhatsAppLogFilterRequest request)
+//     {
+//         var query = _context.WhatsAppLogs
+//             .Include(x => x.Attendance)
+//                 .ThenInclude(x => x.Student)
+//                     .ThenInclude(x => x.ClassRoom)
+//             .Where(x => !x.IsDeleted)
+//             .AsQueryable();
+
+//         //-----------------------------------------------------
+//         // Student Name
+//         //-----------------------------------------------------
+
+//         if (!string.IsNullOrWhiteSpace(request.StudentName))
+//         {
+//             var keyword = request.StudentName.Trim().ToLower();
+
+//             query = query.Where(x =>
+//                 x.Attendance.Student.FullName
+//                     .ToLower()
+//                     .Contains(keyword));
+//         }
+
+//         //-----------------------------------------------------
+//         // Phone Number
+//         //-----------------------------------------------------
+
+//         if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+//         {
+//             var keyword = request.PhoneNumber.Trim();
+
+//             query = query.Where(x =>
+//                 x.PhoneNumber.Contains(keyword));
+//         }
+
+//         //-----------------------------------------------------
+//         // Status
+//         //-----------------------------------------------------
+
+//         if (!string.IsNullOrWhiteSpace(request.Status))
+//         {
+//             var status = request.Status.Trim().ToLower();
+
+//             query = query.Where(x =>
+//                 x.Status.ToLower() == status);
+//         }
+
+//         //-----------------------------------------------------
+//         // From Date
+//         //-----------------------------------------------------
+
+//         if (request.FromDate.HasValue)
+//         {
+//             var from = request.FromDate.Value.ToDateTime(
+//                 TimeOnly.MinValue);
+
+//             query = query.Where(x =>
+//                 x.SentAt >= from);
+//         }
+
+//         //-----------------------------------------------------
+//         // To Date
+//         //-----------------------------------------------------
+
+//         if (request.ToDate.HasValue)
+//         {
+//             var to = request.ToDate.Value.ToDateTime(
+//                 TimeOnly.MaxValue);
+
+//             query = query.Where(x =>
+//                 x.SentAt <= to);
+//         }
+
+//         //-----------------------------------------------------
+//         // Total
+//         //-----------------------------------------------------
+
+//         var totalRecords =
+//             await query.CountAsync();
+
+//         //-----------------------------------------------------
+//         // Paging
+//         //-----------------------------------------------------
+
+//         var items = await query
+//             .OrderByDescending(x => x.SentAt)
+//             .Skip((request.PageNumber - 1)
+//                     * request.PageSize)
+//             .Take(request.PageSize)
+//             .ToListAsync();
+
+//         return new PagedWhatsAppLogResponse
+//         {
+//             Items = items
+//                 .Select(WhatsAppLogDto.FromEntity)
+//                 .ToList(),
+
+//             PageNumber = request.PageNumber,
+
+//             PageSize = request.PageSize,
+
+//             TotalRecords = totalRecords,
+
+//             TotalPages = (int)Math.Ceiling(
+//                 totalRecords /
+//                 (double)request.PageSize)
+//         };
+//     }
+
+//     public async Task<WhatsAppLogDto> GetByIdAsync(
+//         Guid id)
+//     {
+//         var entity = await _context.WhatsAppLogs
+//             .Include(x => x.Attendance)
+//                 .ThenInclude(x => x.Student)
+//                     .ThenInclude(x => x.ClassRoom)
+//             .FirstOrDefaultAsync(x =>
+//                 x.Id == id &&
+//                 !x.IsDeleted);
+
+//         if (entity == null)
+//             throw new KeyNotFoundException(
+//                 "WhatsApp log not found.");
+
+//         return WhatsAppLogDto.FromEntity(entity);
+//     }
+// }
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Features.WhatsApp.Contracts;
 using SmartSchool.Application.Features.WhatsApp.Interfaces;
@@ -8,11 +153,14 @@ namespace SmartSchool.Infrastructure.Services.WhatsApp;
 public class WhatsAppLogService : IWhatsAppLogService
 {
     private readonly SmartSchoolDbContext _context;
+    private readonly IWhatsAppService _whatsAppService;
 
     public WhatsAppLogService(
-        SmartSchoolDbContext context)
+        SmartSchoolDbContext context,
+        IWhatsAppService whatsAppService)
     {
         _context = context;
+        _whatsAppService = whatsAppService;
     }
 
     public async Task<PagedWhatsAppLogResponse> GetPagedAsync(
@@ -64,46 +212,34 @@ public class WhatsAppLogService : IWhatsAppLogService
         }
 
         //-----------------------------------------------------
-        // From Date
+        // Date Filter
         //-----------------------------------------------------
 
         if (request.FromDate.HasValue)
         {
-            var from = request.FromDate.Value.ToDateTime(
-                TimeOnly.MinValue);
+            var from = request.FromDate.Value.ToDateTime(TimeOnly.MinValue);
 
             query = query.Where(x =>
                 x.SentAt >= from);
         }
 
-        //-----------------------------------------------------
-        // To Date
-        //-----------------------------------------------------
-
         if (request.ToDate.HasValue)
         {
-            var to = request.ToDate.Value.ToDateTime(
-                TimeOnly.MaxValue);
+            var to = request.ToDate.Value.ToDateTime(TimeOnly.MaxValue);
 
             query = query.Where(x =>
                 x.SentAt <= to);
         }
 
         //-----------------------------------------------------
-        // Total
-        //-----------------------------------------------------
-
-        var totalRecords =
-            await query.CountAsync();
-
-        //-----------------------------------------------------
         // Paging
         //-----------------------------------------------------
 
+        var totalRecords = await query.CountAsync();
+
         var items = await query
             .OrderByDescending(x => x.SentAt)
-            .Skip((request.PageNumber - 1)
-                    * request.PageSize)
+            .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync();
 
@@ -141,5 +277,43 @@ public class WhatsAppLogService : IWhatsAppLogService
                 "WhatsApp log not found.");
 
         return WhatsAppLogDto.FromEntity(entity);
+    }
+
+    public async Task<RetryWhatsAppResponse> RetryAsync(
+        Guid id)
+    {
+        var log = await _context.WhatsAppLogs
+            .FirstOrDefaultAsync(x =>
+                x.Id == id &&
+                !x.IsDeleted);
+
+        if (log == null)
+            throw new KeyNotFoundException(
+                "WhatsApp log not found.");
+
+        var response = await _whatsAppService.SendAsync(
+            new SendWhatsAppRequest
+            {
+                PhoneNumber = log.PhoneNumber,
+                Message = log.Message
+            });
+
+        log.Status = response.Success
+            ? "Success"
+            : "Failed";
+
+        log.ProviderResponse = response.ProviderMessage;
+
+        log.SentAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return new RetryWhatsAppResponse
+        {
+            Success = response.Success,
+            Status = log.Status,
+            ProviderResponse = log.ProviderResponse ?? string.Empty,
+            SentAt = log.SentAt
+        };
     }
 }

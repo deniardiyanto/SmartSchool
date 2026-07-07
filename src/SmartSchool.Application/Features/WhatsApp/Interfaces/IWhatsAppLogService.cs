@@ -9,4 +9,7 @@ public interface IWhatsAppLogService
 
     Task<WhatsAppLogDto> GetByIdAsync(
         Guid id);
+
+    Task<RetryWhatsAppResponse> RetryAsync(
+        Guid id);
 }
