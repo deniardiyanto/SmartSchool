@@ -24,6 +24,7 @@ using SmartSchool.Application.Features.WhatsApp.Interfaces;
 using SmartSchool.Infrastructure.Services.WhatsApp;
 using SmartSchool.Infrastructure.Configuration;
 
+
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
 public static class InfrastructureServiceCollection
@@ -55,13 +56,15 @@ public static class InfrastructureServiceCollection
         IAttendanceDashboardService,
         AttendanceDashboardService>();
         services.AddHttpClient<IWhatsAppService, WhatsAppService>();
-services.Configure<FonnteOptions>(
-    configuration.GetSection(FonnteOptions.SectionName));
-    services.Configure<SchoolOptions>(
-    configuration.GetSection(SchoolOptions.SectionName));
-    services.AddScoped<
-    IAttendanceMessageBuilder,
-    AttendanceMessageBuilder>();
+        services.Configure<FonnteOptions>(
+            configuration.GetSection(FonnteOptions.SectionName));
+        services.Configure<SchoolOptions>(
+        configuration.GetSection(SchoolOptions.SectionName));
+        services.AddScoped<
+        IAttendanceMessageBuilder,
+        AttendanceMessageBuilder>();
+        services.AddScoped<IWhatsAppLogService,
+        WhatsAppLogService>();
         return services;
     }
 
