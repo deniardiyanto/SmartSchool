@@ -26,6 +26,8 @@ using SmartSchool.Infrastructure.Configuration;
 using SmartSchool.Application.Features.Dashboard.Interfaces;
 using SmartSchool.Infrastructure.Services.Dashboard;
 
+using Microsoft.Extensions.Options;
+
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -60,6 +62,8 @@ public static class InfrastructureServiceCollection
         services.AddHttpClient<IWhatsAppService, WhatsAppService>();
         services.Configure<FonnteOptions>(
             configuration.GetSection(FonnteOptions.SectionName));
+        services.Configure<WablasOptions>(
+            configuration.GetSection(WablasOptions.SectionName));
         services.Configure<SchoolOptions>(
         configuration.GetSection(SchoolOptions.SectionName));
         services.AddScoped<
@@ -71,6 +75,29 @@ public static class InfrastructureServiceCollection
 
         services.AddScoped<IWhatsAppLogService, WhatsAppLogService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddHttpClient<IWhatsAppService, WablasWhatsAppService>(
+    (provider, client) =>
+    {
+        var options = provider
+            .GetRequiredService<IOptions<WablasOptions>>()
+            .Value;
+
+        client.BaseAddress =
+            new Uri(options.BaseUrl);
+
+        client.Timeout =
+            TimeSpan.FromSeconds(30);
+
+        client.DefaultRequestHeaders.Clear();
+
+        client.DefaultRequestHeaders.Add(
+            "Authorization",
+            $"{options.Token}.{options.SecretKey}");
+
+        client.DefaultRequestHeaders.Add(
+            "Accept",
+            "application/json");
+    });
         return services;
     }
 
