@@ -22,7 +22,7 @@ public class WhatsAppTestController : ControllerBase
         var result = await _service.SendAsync(
             new SendWhatsAppRequest
             {
-                PhoneNumber = "081234567890",
+                PhoneNumber = "088980024009",
                 Message = "Halo dari SmartSchool"
             });
 
